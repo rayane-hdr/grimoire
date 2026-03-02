@@ -12,5 +12,6 @@ router.get("/:id", auth, booksCtrl.getOneBook);
 
 // ✅ CREATE
 router.post("/", auth, multer, booksCtrl.createBook);
+router.post("/:id/rating", auth, booksCtrl.rateBook);
 
 module.exports = router;

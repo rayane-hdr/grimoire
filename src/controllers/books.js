@@ -48,3 +48,36 @@ exports.getBestRatedBooks = (req, res, next) => {
     .then((books) => res.status(200).json(books))
     .catch((error) => res.status(400).json({ error }));
 };
+
+exports.rateBook = (req, res, next) => {
+  const userId = req.auth.userId;
+  const grade = req.body.rating;
+
+  if (grade < 0 || grade > 5) {
+    return res.status(400).json({ message: "La note doit être entre 0 et 5" });
+  }
+
+  Book.findOne({ _id: req.params.id })
+    .then((book) => {
+      if (!book) {
+        return res.status(404).json({ message: "Livre introuvable" });
+      }
+
+      // Vérifie si l'utilisateur a déjà noté
+      const alreadyRated = book.ratings.find(r => r.userId === userId);
+      if (alreadyRated) {
+        return res.status(400).json({ message: "Vous avez déjà noté ce livre" });
+      }
+
+      // Ajouter la note
+      book.ratings.push({ userId, grade });
+
+      // Recalcul averageRating
+      const total = book.ratings.reduce((sum, r) => sum + r.grade, 0);
+      book.averageRating = total / book.ratings.length;
+
+      return book.save();
+    })
+    .then((updatedBook) => res.status(200).json(updatedBook))
+    .catch((error) => res.status(400).json({ error }));
+};
