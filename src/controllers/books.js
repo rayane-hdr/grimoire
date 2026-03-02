@@ -1,4 +1,5 @@
 const Book = require("../models/Book");
+const fs = require("fs");
 
 exports.createBook = (req, res, next) => {
   try {
@@ -79,5 +80,34 @@ exports.rateBook = (req, res, next) => {
       return book.save();
     })
     .then((updatedBook) => res.status(200).json(updatedBook))
+    .catch((error) => res.status(400).json({ error }));
+};
+
+exports.deleteBook = (req, res, next) => {
+  Book.findOne({ _id: req.params.id })
+    .then((book) => {
+      if (!book) {
+        return res.status(404).json({ message: "Livre introuvable" });
+      }
+
+      // 🔒 Vérif propriétaire
+      if (book.userId !== req.auth.userId) {
+        return res.status(403).json({ message: "Non autorisé" });
+      }
+
+      // 🖼️ Suppression du fichier image
+      const filename = book.imageUrl.split("/images/")[1];
+      fs.unlink(`images/${filename}`, (err) => {
+        if (err) {
+          // si l’image n’existe pas / erreur, on bloque pas la suppression DB
+          console.error("Image delete error:", err);
+        }
+
+        // 🗑️ Suppression DB
+        Book.deleteOne({ _id: req.params.id })
+          .then(() => res.status(200).json({ message: "Livre supprimé !" }))
+          .catch((error) => res.status(400).json({ error }));
+      });
+    })
     .catch((error) => res.status(400).json({ error }));
 };
