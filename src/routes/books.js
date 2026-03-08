@@ -5,19 +5,45 @@ const auth = require("../middleware/auth");
 const multer = require("../middleware/multer-config");
 const booksCtrl = require("../controllers/books");
 
-// ✅ READ
-router.get("/", auth, booksCtrl.getAllBooks);
-router.get("/bestrating", auth, booksCtrl.getBestRatedBooks);
-router.get("/:id", auth, booksCtrl.getOneBook);
+/* ============================
+   📖 READ (PUBLIC)
+   ============================ */
 
-// ✅ CREATE
+// ✅ Liste de tous les livres (PUBLIC)
+router.get("/", booksCtrl.getAllBooks);
+
+// ✅ Meilleurs livres (PUBLIC)
+router.get("/bestrating", booksCtrl.getBestRatedBooks);
+
+// ✅ Détail d’un livre (PUBLIC)
+router.get("/:id", booksCtrl.getOneBook);
+
+
+/* ============================
+   ✍️ CREATE (PROTÉGÉ)
+   ============================ */
+
+// 🔒 Création d’un livre
 router.post("/", auth, multer, booksCtrl.createBook);
+
+// 🔒 Noter un livre
 router.post("/:id/rating", auth, booksCtrl.rateBook);
 
-// ✅ DELETE
+
+/* ============================
+   ✏️ UPDATE (PROTÉGÉ)
+   ============================ */
+
+// 🔒 Modifier un livre
+router.put("/:id", auth, multer, booksCtrl.modifyBook);
+
+
+/* ============================
+   🗑 DELETE (PROTÉGÉ)
+   ============================ */
+
+// 🔒 Supprimer un livre
 router.delete("/:id", auth, booksCtrl.deleteBook);
 
-// ✅ UPDATE
-router.put("/:id", auth, multer, booksCtrl.modifyBook); 
 
 module.exports = router;
