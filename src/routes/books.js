@@ -3,6 +3,7 @@ const router = express.Router();
 
 const auth = require("../middleware/auth");
 const multer = require("../middleware/multer-config");
+const sharp = require("../middleware/sharp");
 const booksCtrl = require("../controllers/books");
 
 /* ============================
@@ -24,7 +25,7 @@ router.get("/:id", booksCtrl.getOneBook);
    ============================ */
 
 // 🔒 Création d’un livre
-router.post("/", auth, multer, booksCtrl.createBook);
+router.post("/", auth, multer, sharp, booksCtrl.createBook);
 
 // 🔒 Noter un livre
 router.post("/:id/rating", auth, booksCtrl.rateBook);
@@ -35,7 +36,7 @@ router.post("/:id/rating", auth, booksCtrl.rateBook);
    ============================ */
 
 // 🔒 Modifier un livre
-router.put("/:id", auth, multer, booksCtrl.modifyBook);
+router.put("/:id", auth, multer, sharp, booksCtrl.modifyBook);
 
 
 /* ============================
